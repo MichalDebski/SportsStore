@@ -2,6 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using Moq;
+using SportsStore.Domain.Abstract;
+using SportsStore.Domain.Entities;
+
 
 namespace SportsStore.WebUI.Infrastructure
 {
@@ -27,7 +31,15 @@ namespace SportsStore.WebUI.Infrastructure
 
         private void AddBindings()
         {
+            Mock<IProductsRepository> mock = new Mock<IProductsRepository>();
+            mock.Setup(m => m.Products).Returns(new List<Product>
+            {
+                new Product { Name = "Piłka nożna", Price = 25 },
+                new Product { Name = "Deska surfingowa", Price = 179 },
+                new Product { Name = "Buty do biegania", Price = 95 }
+            });
 
+            kernel.Bind<IProductsRepository>().ToConstant(mock.Object);
         }
     }
 }
