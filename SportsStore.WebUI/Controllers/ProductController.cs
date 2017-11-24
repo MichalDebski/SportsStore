@@ -24,9 +24,13 @@ namespace SportsStore.WebUI.Controllers
                                        .Skip((page - 1) * PageSize)
                                        .Take(PageSize);
 
-            model.PagingInfo = new PagingInfo { CurrentPage = page,
-            ItemsPerPage = PageSize,TotalItems =repository.Products.Count()};
-                                       
+            model.PagingInfo = new PagingInfo
+            {
+                CurrentPage = page,
+                ItemsPerPage = PageSize,
+                TotalItems = repository.Products.Count()
+            };
+
 
             return View(model);
         }
