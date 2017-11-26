@@ -19,11 +19,11 @@ namespace SportsStore.UnitTests
         {
             Mock<IProductsRepository> mock = new Mock<IProductsRepository>();
             mock.Setup(m => m.Products).Returns(new Product[] {
-                new Product { ProductID = 1, Name = "P1"},
-                new Product { ProductID = 2, Name = "P2"},
-                new Product { ProductID = 3, Name = "P3"},
-                new Product { ProductID = 4, Name = "P4"},
-                new Product { ProductID = 5, Name = "P5"}
+                new Product { ProductID = 1, Name = "P1", Category = "Cat1"},
+                new Product { ProductID = 2, Name = "P2", Category = "Cat2"},
+                new Product { ProductID = 3, Name = "P3", Category = "Cat1"},
+                new Product { ProductID = 4, Name = "P4", Category = "Cat2"},
+                new Product { ProductID = 5, Name = "P5", Category = "Cat3"}
             });
 
             return mock;
@@ -39,10 +39,10 @@ namespace SportsStore.UnitTests
             controller.PageSize = 3;
 
             // act
-            IEnumerable<Product> resukt = (IEnumerable<Product>)controller.List(2).Model;
+            ProductsListViewModel result = (ProductsListViewModel)controller.List(null, 2).Model;
 
             // assert
-            Product[] prodArray = resukt.ToArray();
+            Product[] prodArray = result.Products.ToArray();
             Assert.IsTrue(prodArray.Length == 2);
             Assert.AreEqual(prodArray[0].Name, "P4");
             Assert.AreEqual(prodArray[1].Name, "P5");
@@ -65,7 +65,7 @@ namespace SportsStore.UnitTests
             Func<int, string> pageUrlDelegate = i => "Strona" + i;
 
             // act
-            MvcHtmlString result = myHelper.PageLinks(pagingInfo,pageUrlDelegate);
+            MvcHtmlString result = myHelper.PageLinks(pagingInfo, pageUrlDelegate);
 
             // assert
             Assert.AreEqual(@"<a class=""btn btn-default"" href=""Strona1"">1</a>" +
@@ -83,13 +83,81 @@ namespace SportsStore.UnitTests
             controller.PageSize = 3;
 
             // act
-            ProductsListViewModel result = (ProductsListViewModel)controller.List(2).Model;
+            ProductsListViewModel result = (ProductsListViewModel)controller.List(null, 2).Model;
 
             // assert
             Product[] prodArray = result.Products.ToArray();
             Assert.IsTrue(prodArray.Length == 2);
             Assert.AreEqual(prodArray[0].Name, "P4");
             Assert.AreEqual(prodArray[1].Name, "P5");
+        }
+
+        [TestMethod]
+        public void Can_Filter_Products()
+        {
+            // arrange
+            Mock<IProductsRepository> mock = GetMockRepo();
+            ProductController controller = new ProductController(mock.Object);
+            controller.PageSize = 3;
+
+            // act
+            ProductsListViewModel result = (ProductsListViewModel)controller.List("Cat2", 1).Model;
+
+            // assert
+            Product[] prodArray = result.Products.ToArray();
+            Assert.IsTrue(prodArray.Length == 2);
+            Assert.IsTrue(prodArray[0].Name == "P2" && prodArray[0].Category == "Cat2");
+            Assert.IsTrue(prodArray[1].Name == "P4" && prodArray[1].Category == "Cat2");
+
+        }
+
+        [TestMethod]
+        public void Can_Create_Categories()
+        {
+            // arrange
+            Mock<IProductsRepository> mock = GetMockRepo();
+            NavController controller = new NavController(mock.Object);
+
+            // act
+            string[] result = ((IEnumerable<string>)controller.Menu().Model).ToArray();
+
+
+            // assert
+            Assert.AreEqual(3, result.Length);
+            Assert.AreEqual(result[0], "Cat1");
+            Assert.AreEqual(result[1], "Cat2");
+            Assert.AreEqual(result[2], "Cat3");
+        }
+
+        [TestMethod]
+        public void Indicates_Selected_Category()
+        {
+            Mock<IProductsRepository> mock = GetMockRepo();
+
+            NavController controller = new NavController(mock.Object);
+
+
+            string categoryToSelect = "Cat2";
+
+            string result = controller.Menu(categoryToSelect).ViewBag.SelectedCategory;
+
+            Assert.AreEqual(categoryToSelect, result);
+        }
+
+        [TestMethod]
+        public void Generate_Category_Specific_Product_Count()
+        {
+            Mock<IProductsRepository> mock = GetMockRepo();
+            ProductController controller = new ProductController(mock.Object);
+            controller.PageSize = 3;
+
+            int res1 = ((ProductsListViewModel)controller.List("Cat1").Model).PagingInfo.TotalItems;
+            int res2= ((ProductsListViewModel)controller.List("Cat2").Model).PagingInfo.TotalItems;
+            int res3 = ((ProductsListViewModel)controller.List("Cat3").Model).PagingInfo.TotalItems;
+
+            Assert.AreEqual(2, res1);
+            Assert.AreEqual(2, res2);
+            Assert.AreEqual(1, res3);
         }
     }
 }
