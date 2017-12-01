@@ -154,10 +154,12 @@ namespace SportsStore.UnitTests
             int res1 = ((ProductsListViewModel)controller.List("Cat1").Model).PagingInfo.TotalItems;
             int res2= ((ProductsListViewModel)controller.List("Cat2").Model).PagingInfo.TotalItems;
             int res3 = ((ProductsListViewModel)controller.List("Cat3").Model).PagingInfo.TotalItems;
+            int resAll = ((ProductsListViewModel)controller.List(null).Model).PagingInfo.TotalItems;
 
             Assert.AreEqual(2, res1);
             Assert.AreEqual(2, res2);
             Assert.AreEqual(1, res3);
+            Assert.AreEqual(5, resAll);
         }
     }
 }
