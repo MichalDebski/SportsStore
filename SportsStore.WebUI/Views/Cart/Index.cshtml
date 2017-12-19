@@ -15,13 +15,21 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(var line in Model.Cart.Lines)
+        @foreach (var line in Model.Cart.Lines)
         {
             <tr>
                 <td>@line.Quantity</td>
                 <td>@line.Product.Name</td>
                 <td class="text-right">@line.Product.Price.ToString("c")</td>
-                <td class="text-right">@((line.Quantity*line.Product.Price).ToString("c"))</td>
+                <td class="text-right">@((line.Quantity * line.Product.Price).ToString("c"))</td>
+                <td>
+                    @using (Html.BeginForm("RemoveFromCart", "Cart"))
+                    {
+                        @Html.Hidden("ProductId", line.Product.ProductID)
+                        @Html.HiddenFor(x => x.ReturnUrl)
+                        <input class="btn btn-sm btn-danger" type="submit" value="Usuń" />
+                    }
+                </td>
             </tr>
         }
     </tbody>
@@ -35,4 +43,5 @@
 
 <div class="text-center">
     <a href="@Model.ReturnUrl" class="btn btn-primary">Kontynuuj zakupy</a>
+    @Html.ActionLink("Złóż zamówienie", "Checkout", null, new { @class = "btn btn-primary" })
 </div>
