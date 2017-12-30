@@ -46,7 +46,6 @@ namespace SportsStore.UnitTests
             Assert.IsTrue(prodArray.Length == 2);
             Assert.AreEqual(prodArray[0].Name, "P4");
             Assert.AreEqual(prodArray[1].Name, "P5");
-
         }
 
         [TestMethod]
